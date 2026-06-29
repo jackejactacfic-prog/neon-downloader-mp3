@@ -8,24 +8,36 @@ DOWNLOAD_FOLDER = "downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 def baixar(url, formato):
+    base_opts = {
+        'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
+        'quiet': True,
+        'retries': 5,
+        'nocheckcertificate': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36'
+        }
+    }
+
+    # 🔑 cookies (se existir arquivo)
+    if os.path.exists("cookies.txt"):
+        base_opts['cookiefile'] = "cookies.txt"
+
     if formato == "mp3":
         ydl_opts = {
+            **base_opts,
             'format': 'bestaudio/best',
-            'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'quiet': True
         }
 
     elif formato == "mp4":
         ydl_opts = {
+            **base_opts,
             'format': 'bestvideo+bestaudio/best',
-            'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
             'merge_output_format': 'mp4',
-            'quiet': True
         }
 
     else:
